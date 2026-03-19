@@ -38,11 +38,11 @@ class HerramientasController extends Controller
     {
         $response = Http::get("{$this->apiUrl}/api/herramientas");
 
-        $herramientas = collect(); 
+        $herramientas = collect();
         if ($response->successful()) {
             $json = $response->object();
             if ($json->resultado) {
-                
+
                 $herramientas = collect($json->datos);
             } else {
                 return redirect()->back()->with('error', $json->error);
@@ -176,6 +176,23 @@ class HerramientasController extends Controller
             $json = $response->object();
             if ($json->resultado) {
                 return redirect()->route('herramientas.listado')->with('success', 'Estatus cambiado a no disponible exitosamente.');
+            }
+            return redirect()->back()->with('error', $json->error);
+        }
+
+        return redirect()->back()->with('error', 'Error al conectar con la API.');
+    }
+
+    // GET /herramientas/{id} detalle de herramienta para el carrito
+    public function show($id)
+    {
+        $response = Http::get("{$this->apiUrl}/api/herramientas/{$id}");
+
+        if ($response->successful()) {
+            $json = $response->object();
+            if ($json->resultado) {
+                $herramienta = $json->datos;
+                return view('carrito.detalle-carrito', compact('herramienta'));
             }
             return redirect()->back()->with('error', $json->error);
         }

@@ -44,7 +44,7 @@
                         <span class="sr-only">Toggle sidebar</span>
                     </button>
 
-                    <a href="{{ route('inicio') }}" class="flex mr-4">
+                    <a href="{{ route('herramientas.index') }}" class="flex mr-4">
                         <span
                             class="self-center text-2xl font-semibold whitespace-nowrap dark:text-white">Herramientas</span>
                     </a>
@@ -90,12 +90,10 @@
                                     class="z-10 absolute hidden bg-neutral-primary-medium border border-default-medium rounded-base shadow-lg w-44">
                                     <ul class="p-2 text-sm text-body font-medium"
                                         aria-labelledby="dropdownHerramientasButton">
-
                                         <li>
                                             <a href="/herramientas/registro"
                                                 class="block w-full p-2 hover:bg-orange-300 hover:text-heading rounded transition-colors duration-300">Registro</a>
                                         </li>
-
                                         <li>
                                             <a href="/herramientas/listado"
                                                 class="block w-full p-2 hover:bg-orange-300 hover:text-heading rounded transition-colors duration-300">Listado</a>
@@ -112,66 +110,35 @@
                                 <path fill-rule="evenodd"
                                     d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z"
                                     clip-rule="evenodd"></path>
-                            </svg><a href="/herramientas">Solicitar Herramienta</a>
-                            
+                            </svg>
+                            <a href="/herramientas">Solicitar Herramienta</a>
                         </button>
 
-
-                        {{-- Avatar del usuario con dropdown --}}
-                        {{-- @auth('usuarios') --}}
-                            <button type="button"
-                                class="flex text-sm rounded-full focus:ring-4 focus:ring-gray-300 dark:focus:ring-gray-600"
-                                id="user-menu-button" aria-expanded="false" data-dropdown-toggle="user-dropdown"
-                                data-dropdown-placement="bottom">
-                                <span class="sr-only">Abrir menú de usuario</span>
-                                <img class="w-8 h-8 rounded-full object-cover border-2 border-gray-300 dark:border-gray-500"
-                                    {{-- src="{{ Auth::guard('usuarios')->user()->imagen ?? asset('imagenes/default.jpg') }}" --}}
-                                    alt="Avatar">
-                            </button>
-
-                            {{-- Dropdown info usuario --}}
-                            <div id="user-dropdown"
-                                class="z-50 hidden bg-white border border-gray-200 rounded-lg shadow-lg w-56 dark:bg-gray-700 dark:border-gray-600">
-                                <div class="px-4 py-3 text-sm">
-                                    <span class="block font-semibold text-gray-900 dark:text-white">
-                                        {{-- {{ Auth::guard('usuarios')->user()->nombre }} --}}
-                                    </span>
-                                    <span class="block text-gray-500 dark:text-gray-400 truncate text-xs mt-1">
-                                        {{-- {{ Auth::guard('usuarios')->user()->correo }} --}}
-                                    </span>
-                                    <span
-                                        class="inline-block mt-2 px-2 py-1 text-xs font-medium rounded-full
-                                        {{-- {{ Auth::guard('usuarios')->user()->rol === 'Administrador' ? 'bg-purple-100 text-purple-800' : 'bg-blue-100 text-blue-800' }}">
-                                        {{ Auth::guard('usuarios')->user()->rol }} --}}
-                                    </span>
-                                </div>
-                            </div>
-                        @endauth
-
-                        {{-- Botón cerrar sesión --}}
-                        <form action="{{ route('logout') }}" method="POST">
-                            @csrf
-                            <button type="submit"
-                                class="p-2 text-gray-500 rounded-lg hover:text-red-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:text-red-400 dark:hover:bg-gray-700 focus:ring-4 focus:ring-gray-300 dark:focus:ring-gray-600"
-                                title="Cerrar sesión">
-                                <span class="sr-only">Cerrar sesión</span>
-                                <svg class="w-5 h-5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
-                                    fill="none" viewBox="0 0 16 16">
-                                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
-                                        stroke-width="2"
-                                        d="M4 8h11m0 0-4-4m4 4-4 4m-5 3H3a2 2 0 0 1-2-2V3a2 2 0 0 1 2-2h3" />
-                                </svg>
-                            </button>
-                        </form>
+                        {{-- Icono del carrito --}}
+                        <a href="{{ route('carrito.index') }}"
+                            class="relative p-2 text-white hover:text-orange-400 transition-colors">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+                            </svg>
+                            @php $cantidadCarrito = count(session('carrito', [])); @endphp
+                            @if ($cantidadCarrito > 0)
+                                <span
+                                    class="absolute -top-1 -right-1 bg-orange-500 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
+                                    {{ $cantidadCarrito }}
+                                </span>
+                            @endif
+                        </a>
 
                     </div>
-                {{-- @endif --}}
 
-                @if ($isRegistroPage || $isAvisoPage)
-                    <a href="{{ route('login') }}"
-                        class="ml-2 text-gray-500 hover:text-[#fb5607] dark:text-gray-400 dark:hover:text-[#fb5607]">
-                        Iniciar sesión
-                    </a>
+                    @if ($isRegistroPage || $isAvisoPage)
+                        <a href="{{ route('login') }}"
+                            class="ml-2 text-gray-500 hover:text-[#fb5607] dark:text-gray-400 dark:hover:text-[#fb5607]">
+                            Iniciar sesión
+                        </a>
+                    @endif
+
                 @endif
 
             </div>
@@ -191,32 +158,11 @@
             </a>
             <p class="my-6 text-gray-500 dark:text-gray-400"></p>
             <ul class="flex flex-wrap justify-center items-center mb-6 text-gray-900 dark:text-white">
-                {{-- <li>
-                    <a href="#" class="mr-4 hover:underline md:mr-6 ">About</a>
-                </li>
-                <li>
-                    <a href="#" class="mr-4 hover:underline md:mr-6">Premium</a>
-                </li>
-                <li>
-                    <a href="#" class="mr-4 hover:underline md:mr-6 ">Campaigns</a>
-                </li>
-                <li>
-                    <a href="#" class="mr-4 hover:underline md:mr-6">Blog</a>
-                </li>
-                <li>
-                    <a href="#" class="mr-4 hover:underline md:mr-6">Affiliate Program</a>
-                </li>
-                <li>
-                    <a href="#" class="mr-4 hover:underline md:mr-6">FAQs</a>
-                </li> --}}
                 <li>
                     <a href="{{ route('aviso.privacidad') }}" class="mr-4 hover:underline md:mr-6">Aviso de
                         privacidad</a>
                 </li>
             </ul>
-
-            {{-- <span class="text-sm text-gray-500 sm:text-center dark:text-gray-400">© 2021-2022 <a href="#"
-                    class="hover:underline">Flowbite™</a>. All Rights Reserved.</span> --}}
         </div>
     </footer>
 

@@ -4,11 +4,11 @@ use App\Http\Controllers\HerramientasController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\LoginController;
 use Illuminate\Support\Facades\Auth;
-use Laravel\Socialite\Facades\Socialite;
-use App\Models\Usuarios;
-use Illuminate\Support\Str;
-use Illuminate\Support\Facades\Hash;
-use Barryvdh\DomPDF\Facade\Pdf;
+//use Laravel\Socialite\Facades\Socialite;
+//use App\Models\Usuarios;
+//use Illuminate\Support\Str;
+// use Illuminate\Support\Facades\Hash;
+// use Barryvdh\DomPDF\Facade\Pdf;
 
 
 // Rutas publicas
@@ -25,43 +25,44 @@ Route::prefix('herramientas')->group(function () {
     Route::post('/store', [App\Http\Controllers\HerramientasController::class, 'store'])->name('herramientas.store');
     Route::get('/{id_herramienta}/edit', [App\Http\Controllers\HerramientasController::class, 'edit'])->name('herramientas.edit');
     Route::post('/{id_herramienta}/actualizar', [HerramientasController::class, 'update'])->name('herramientas.update');
-    Route::post('/show', [App\Http\Controllers\HerramientasController::class, 'show'])->name('herramientas.show');
+   // C
     Route::delete('/destroy/{id_herramienta}', [App\Http\Controllers\HerramientasController::class, 'destroy'])->name('herramientas.destroy');
     Route::get('/listado', [App\Http\Controllers\HerramientasController::class, 'listado'])->name('herramientas.listado');
 });
 
+
 // Google Auth
-Route::get('auth/google', function () {
-    return Socialite::driver('google')->redirect();
-})->name('auth.google');
+// Route::get('auth/google', function () {
+//     return Socialite::driver('google')->redirect();
+// })->name('auth.google');
 
-Route::get('/auth/google/callback', function () {
-    try {
-        $googleUser = Socialite::driver('google')->stateless()->user();
-        $usuario = Usuarios::where('correo', $googleUser->getEmail())->first();
+// Route::get('/auth/google/callback', function () {
+//     try {
+//         $googleUser = Socialite::driver('google')->stateless()->user();
+//         $usuario = Usuarios::where('correo', $googleUser->getEmail())->first();
 
-        if (!$usuario) {
-            $usuario = Usuarios::create([
-                'nombre'     => $googleUser->getName(),
-                'correo' => $googleUser->getEmail(),
-                'usuario'     => $googleUser->getEmail(),
-                'contrasena' => Hash::make(Str::random(16)),
-                'rol'     => 'Almacenista',
-                'turno'      => 'Matutino',
-                'imagen'     => $googleUser->getAvatar(),
-            ]);
-        } else {
-            // Actualizar avatar por si cambia en Google
-            $usuario->update(['imagen' => $googleUser->getAvatar()]);
-        }
+//         if (!$usuario) {
+//             $usuario = Usuarios::create([
+//                 'nombre'     => $googleUser->getName(),
+//                 'correo' => $googleUser->getEmail(),
+//                 'usuario'     => $googleUser->getEmail(),
+//                 'contrasena' => Hash::make(Str::random(16)),
+//                 'rol'     => 'Almacenista',
+//                 'turno'      => 'Matutino',
+//                 'imagen'     => $googleUser->getAvatar(),
+//             ]);
+//         } else {
+//             // Actualizar avatar por si cambia en Google
+//             $usuario->update(['imagen' => $googleUser->getAvatar()]);
+//         }
 
-        Auth::guard('usuarios')->login($usuario);
-        return redirect()->route('inicio');
-    } catch (\Exception $e) {
-        return redirect()->route('login')
-            ->withErrors(['error' => 'Error al iniciar sesión con Google: ' . $e->getMessage()]);
-    }
-});
+//         Auth::guard('usuarios')->login($usuario);
+//         return redirect()->route('inicio');
+//     } catch (\Exception $e) {
+//         return redirect()->route('login')
+//             ->withErrors(['error' => 'Error al iniciar sesión con Google: ' . $e->getMessage()]);
+//     }
+// });
 
 //rutas protegidas
 Route::middleware('auth:usuarios')->group(function () {
@@ -75,12 +76,25 @@ Route::middleware('auth:usuarios')->group(function () {
 });
 
 
+// Detalle herramienta para el carrito
+Route::get('/herramientas/{id}', [App\Http\Controllers\HerramientasController::class, 'show'])->name('herramientas.show');
+
+
+Route::prefix('carrito')->name('carrito.')->group(function () {
+    Route::get('/',            [App\Http\Controllers\CarritoController::class, 'index'])->name('index');
+    Route::post('/agregar',    [App\Http\Controllers\CarritoController::class, 'agregar'])->name('agregar');
+    Route::post('/actualizar', [App\Http\Controllers\CarritoController::class, 'actualizar'])->name('actualizar');
+    Route::post('/eliminar',   [App\Http\Controllers\CarritoController::class, 'eliminar'])->name('eliminar');
+    Route::post('/vaciar',     [App\Http\Controllers\CarritoController::class, 'vaciar'])->name('vaciar');
+});
+
+
 Route::get('/', function () {
     return redirect()->route('login');
 });
 
 
-Route::get('/aviso-de-privacidad/pdf', function () {
-    $pdf = Pdf::loadView('aviso_de_privacidad.pdf'); // <- busca aviso_de_privacidad/pdf.blade.php
-    return $pdf->download('aviso_de_privacidad.pdf');
-})->name('aviso.privacidad.pdf');
+// Route::get('/aviso-de-privacidad/pdf', function () {
+//     $pdf = Pdf::loadView('aviso_de_privacidad.pdf'); // <- busca aviso_de_privacidad/pdf.blade.php
+//     return $pdf->download('aviso_de_privacidad.pdf');
+// })->name('aviso.privacidad.pdf');
