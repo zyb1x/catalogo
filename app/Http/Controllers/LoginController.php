@@ -2,118 +2,86 @@
 
 namespace App\Http\Controllers;
 
-// use App\Models\Empleados;
 use Illuminate\Http\Request;
-use App\Models\Usuarios;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Hash;
-
+use Illuminate\Support\Facades\Http;
 
 class LoginController extends Controller
 {
+    protected $apiUrl = 'http://localhost:8000/api';
 
-    public function create()
-    {
-        return view('login.formulario-crear');
-    }
-
-    public function store(Request $request)
-    {
-        $request->validate(
-            [
-                'nombre' => 'required',
-                'correo' => 'required|email|unique:Usuarios,correo',
-                'usuario' => 'required|unique:Usuarios,usuario,correo',
-                'contrasena' => 'required|min:6',
-                'conf_contrasena' => 'required|same:contrasena',
-                'rol'   => 'required|in:Administrador,Almacenista',
-                'turno' => 'required|in:Matutino,Vespertino,Nocturno',
-                'imagen' => 'required|nullable|max:2048|mimes:jpeg,png,jpg'
-            ],
-            [
-                'nombre.required' => 'El nombre es obligatorio.',
-                'usuario.required' => 'El nombre de usuario es obligatorio.',
-                'usuario.unique' => 'Ya existe un empleado con ese nombre de usuario.',
-                'correo.required' => 'El correo electrónico es obligatorio.',
-                'correo.email' => 'El correo electrónico debe ser una dirección válida.',
-                'correo.unique' => 'Ya existe un empleado con ese correo electrónico.',
-                'contrasena.required' => 'La contraseña es obligatoria.',
-                'contrasena.min' => 'La contraseña debe tener al menos 6 caracteres.',
-                'conf_contrasena.required' => 'La confirmación de la contraseña es obligatoria.',
-                'conf_contrasena.same' => 'Las contraseñas no coinciden.',
-                'rol.required' => 'El rol es obligatorio.',
-                'rol.in'       => 'Debes seleccionar un rol válido.',
-                'turno.required' => 'El turno es obligatorio.',
-                'turno.in'       => 'Debes seleccionar un turno válido.',
-                'imagen.required' => 'La imagen es obligatoria.',
-                'imagen.max' => 'La imagen no debe superar los 2MB.',
-                'imagen.mimes' => 'La imagen debe ser un archivo de tipo: jpeg, png, jpg.'
-            ]
-        );
-
-        $usuario = new Usuarios();
-        $usuario->nombre = $request->nombre;
-        $usuario->usuario = $request->usuario;
-        $usuario->correo = $request->correo;
-        $usuario->contrasena = Hash::make($request->contrasena);
-        $usuario->rol = $request->rol;
-        $usuario->turno = $request->turno;
-        $usuario->imagen = $request->imagen;
-
-        $usuario->save();
-
-        if ($request->has('imagen')) {
-            $imagen = $request->imagen;
-            $nuevo_nombre = 'usuario_' . $usuario->id . '.jpg';
-            $ruta = $imagen->storeAs('imagenes/usuarios', $nuevo_nombre, 'public');
-            $usuario->imagen = '/storage/' . $ruta;
-            $usuario->save();
-        }
-
-
-
-        return redirect()->route('login')->with('success', 'Usuario creado exitosamente.');
-    }
-
+    
     public function showLoginForm()
     {
         return view('login.login');
     }
 
+
     public function login(Request $request)
     {
         $request->validate([
-            'email' => 'required|email',
+            'email'    => 'required|email',
             'password' => 'required',
         ]);
 
-        $usuario = Usuarios::where('correo', $request->email)->first();
+        $response = Http::post("{$this->apiUrl}/login", [
+            'email'    => $request->email,
+            'password' => $request->password,
+        ]);
 
-        if (!$usuario) {
-            return back()->withErrors([
-                'error' => 'No existe una cuenta con ese correo electrónico.'
-            ])->withInput();
+        if ($response->successful()) {
+            $data = $response->json();
+            session([
+                'api_token' => $data['access_token'],
+                'usuario'   => $data['user'],
+            ]);
+            return redirect()->route('herramientas.index');
         }
 
-        if (!Hash::check($request->password, $usuario->contrasena)) {
-            return back()->withErrors([
-                'error' => 'La contraseña es incorrecta.'
-            ])->withInput();
-        }
-
-        Auth::guard('usuarios')->login($usuario);
-        $request->session()->regenerate();
-
-        return redirect('/inicio');
+        return back()->withErrors(['email' => 'Credenciales incorrectas']);
     }
 
+    // formulario registro
+    public function create()
+    {
+        return view('login.formulario-crear');
+    }
+
+
+    public function store(Request $request)
+    {
+        $request->validate([
+            'name'                  => 'required|string',
+            'email'                 => 'required|email',
+            'password'              => 'required|min:6',
+            'password_confirmation' => 'required|same:password',
+        ]);
+
+        $response = Http::post("{$this->apiUrl}/register", [
+            'name'                  => $request->name,
+            'email'                 => $request->email,
+            'password'              => $request->password,
+            'password_confirmation' => $request->password_confirmation,
+        ]);
+
+        if ($response->successful()) {
+            $data = $response->json();
+            session([
+                'api_token' => $data['access_token'],
+                'usuario'   => $data['user'],
+            ]);
+            return redirect()->route('herramientas.index');
+        }
+
+        return back()->withErrors(['email' => 'Error al registrar usuario']);
+    }
+
+  
     public function logout(Request $request)
     {
-        Auth::guard('usuarios')->logout();
+        Http::withToken(session('api_token'))
+            ->post("{$this->apiUrl}/logout");
 
-        $request->session()->invalidate();
-        $request->session()->regenerateToken();
-
-        return redirect('/login');
+        session()->forget(['api_token', 'usuario']);
+        return redirect()->route('login');
     }
 }

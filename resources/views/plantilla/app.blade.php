@@ -23,49 +23,12 @@
         <nav class="bg-white border-gray-200 px-4 lg:px-6 py-2.5 dark:bg-[#023047]">
             <div class="flex flex-wrap justify-between items-center">
 
-                {{-- Lado izquierdo: toggle sidebar + logo + buscador --}}
                 <div class="flex justify-start items-center">
-                    <button id="toggleSidebar" aria-expanded="true" aria-controls="sidebar"
-                        class="hidden p-2 mr-3 text-gray-600 rounded cursor-pointer lg:inline hover:text-gray-900 hover:bg-gray-100 dark:text-gray-400 dark:hover:text-white dark:hover:bg-gray-700">
-                        <svg class="w-5 h-5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none"
-                            viewBox="0 0 16 12">
-                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M1 1h14M1 6h14M1 11h7" />
-                        </svg>
-                    </button>
-
-                    <button aria-expanded="true" aria-controls="sidebar"
-                        class="p-2 mr-2 text-gray-600 rounded-lg cursor-pointer lg:hidden hover:text-gray-900 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">
-                        <svg class="w-[18px] h-[18px]" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
-                            fill="none" viewBox="0 0 17 14">
-                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M1 1h15M1 7h15M1 13h15" />
-                        </svg>
-                        <span class="sr-only">Toggle sidebar</span>
-                    </button>
 
                     <a href="{{ route('herramientas.index') }}" class="flex mr-4">
                         <span
                             class="self-center text-2xl font-semibold whitespace-nowrap dark:text-white">Herramientas</span>
                     </a>
-
-                    @if (!$isLoginPage)
-                        <form action="#" method="GET" class="hidden lg:block lg:pl-2">
-                            <label for="topbar-search" class="sr-only">Buscar herramientas</label>
-                            <div class="relative mt-1 lg:w-96">
-                                <div class="flex absolute inset-y-0 left-0 items-center pl-3 pointer-events-none">
-                                    <svg class="w-4 h-4 text-gray-500 dark:text-gray-400" aria-hidden="true"
-                                        xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
-                                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
-                                            stroke-width="2" d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z" />
-                                    </svg>
-                                </div>
-                                <input type="text" name="q" id="topbar-search"
-                                    class="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full pl-9 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white"
-                                    placeholder="Buscar herramientas">
-                            </div>
-                        </form>
-                    @endif
                 </div>
 
                 {{-- Lado derecho: acciones de usuario --}}
@@ -130,6 +93,55 @@
                             @endif
                         </a>
 
+                        {{-- Usuario activo --}}
+                        @if (session('api_token'))
+                            <div class="relative">
+                                <button type="button"
+                                    class="flex text-sm rounded-full focus:ring-4 focus:ring-orange-300 hover:ring-2 hover:ring-orange-400 transition-all"
+                                    id="user_foto" data-dropdown-toggle="user_informacion"
+                                    data-dropdown-placement="bottom">
+                                    @if (!empty(session('usuario')['imagen']))
+                                        <img class="w-8 h-8 rounded-full object-cover border-2 border-orange-400"
+                                            src="http://localhost:8000/storage/{{ session('usuario')['imagen'] }}"
+                                            alt="Avatar">
+                                    @else
+                                        <div
+                                            class="w-8 h-8 rounded-full bg-orange-500 flex items-center justify-center text-white font-bold text-sm border-2 border-orange-400">
+                                            {{ strtoupper(substr(session('usuario')['name'], 0, 1)) }}
+                                        </div>
+                                    @endif
+                                </button>
+
+                                <div id="user_informacion"
+                                    class="z-50 hidden bg-white border border-gray-200 rounded-lg shadow-lg w-56 absolute right-0 top-10">
+                                    <div class="px-4 py-3 text-sm">
+                                        <span
+                                            class="block font-semibold text-gray-900">{{ session('usuario')['name'] }}</span>
+                                        <span
+                                            class="block text-gray-500 truncate text-xs mt-1">{{ session('usuario')['email'] }}</span>
+                                    </div>
+                                    <ul class="py-2 border-t border-gray-100">
+                                        <li>
+                                            <a href="{{ route('perfil.index') }}"
+                                                class="block px-4 py-2 text-sm text-gray-700 hover:bg-orange-50 hover:text-orange-500">
+                                                Mi perfil
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <form action="{{ route('logout') }}" method="POST">
+                                                @csrf
+                                                <button type="submit"
+                                                    class="w-full text-left px-4 py-2 text-sm text-red-500 hover:bg-red-50">
+                                                    Cerrar sesión
+                                                </button>
+                                            </form>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        @endif
+
+
                     </div>
 
                     @if ($isRegistroPage || $isAvisoPage)
@@ -156,13 +168,6 @@
                 <img src="{{ asset('storage/img/logo_herramientas.png') }}" alt="logo" class="h-15 w-auto mr-2">
                 Herramientas
             </a>
-            <p class="my-6 text-gray-500 dark:text-gray-400"></p>
-            <ul class="flex flex-wrap justify-center items-center mb-6 text-gray-900 dark:text-white">
-                <li>
-                    <a href="{{ route('aviso.privacidad') }}" class="mr-4 hover:underline md:mr-6">Aviso de
-                        privacidad</a>
-                </li>
-            </ul>
         </div>
     </footer>
 

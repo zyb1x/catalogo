@@ -3,12 +3,10 @@
 use App\Http\Controllers\HerramientasController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\LoginController;
-use Illuminate\Support\Facades\Auth;
+use App\Http\Controllers\PerfilController;
 //use Laravel\Socialite\Facades\Socialite;
-//use App\Models\Usuarios;
-//use Illuminate\Support\Str;
-// use Illuminate\Support\Facades\Hash;
-// use Barryvdh\DomPDF\Facade\Pdf;
+
+
 
 
 // Rutas publicas
@@ -16,7 +14,8 @@ Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
 Route::post('/login', [LoginController::class, 'login']);
 Route::get('/registro', [LoginController::class, 'create'])->name('registro');
 Route::post('/registro/store', [LoginController::class, 'store'])->name('registro.store');
-Route::view('/aviso-de-privacidad', 'aviso_de_privacidad.aviso')->name('aviso.privacidad');
+Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
+
 
 // Rutas de herramientas
 Route::prefix('herramientas')->group(function () {
@@ -25,7 +24,6 @@ Route::prefix('herramientas')->group(function () {
     Route::post('/store', [App\Http\Controllers\HerramientasController::class, 'store'])->name('herramientas.store');
     Route::get('/{id_herramienta}/edit', [App\Http\Controllers\HerramientasController::class, 'edit'])->name('herramientas.edit');
     Route::post('/{id_herramienta}/actualizar', [HerramientasController::class, 'update'])->name('herramientas.update');
-   // C
     Route::delete('/destroy/{id_herramienta}', [App\Http\Controllers\HerramientasController::class, 'destroy'])->name('herramientas.destroy');
     Route::get('/listado', [App\Http\Controllers\HerramientasController::class, 'listado'])->name('herramientas.listado');
 });
@@ -64,21 +62,13 @@ Route::prefix('herramientas')->group(function () {
 //     }
 // });
 
-//rutas protegidas
-Route::middleware('auth:usuarios')->group(function () {
-
-
-    Route::get('/inicio', function () {
-        return view('inicio.inicio');
-    })->name('inicio');
-
-    Route::post('/logout', [App\Http\Controllers\LoginController::class, 'logout'])->name('logout');
-});
+Route::get('/inicio', function () {
+    return view('inicio.inicio');
+})->name('inicio');
 
 
 // Detalle herramienta para el carrito
 Route::get('/herramientas/{id}', [App\Http\Controllers\HerramientasController::class, 'show'])->name('herramientas.show');
-
 
 Route::prefix('carrito')->name('carrito.')->group(function () {
     Route::get('/',            [App\Http\Controllers\CarritoController::class, 'index'])->name('index');
@@ -94,7 +84,10 @@ Route::get('/', function () {
 });
 
 
-// Route::get('/aviso-de-privacidad/pdf', function () {
-//     $pdf = Pdf::loadView('aviso_de_privacidad.pdf'); // <- busca aviso_de_privacidad/pdf.blade.php
-//     return $pdf->download('aviso_de_privacidad.pdf');
-// })->name('aviso.privacidad.pdf');
+// Info sobre perfil autenticado
+Route::prefix('perfil')->name('perfil.')->group(function () {
+    Route::get('/',                [PerfilController::class, 'index'])->name('index');
+    Route::put('/actualizar',      [PerfilController::class, 'actualizar'])->name('actualizar');
+    Route::post('/imagen',         [PerfilController::class, 'actualizarImagen'])->name('imagen');
+    Route::put('/contrasena',      [PerfilController::class, 'actualizarContrasena'])->name('contrasena');
+});
