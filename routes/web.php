@@ -3,6 +3,7 @@
 use App\Http\Controllers\HerramientasController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\LoginController;
+use App\Http\Controllers\PedidosController;
 use App\Http\Controllers\PerfilController;
 //use Laravel\Socialite\Facades\Socialite;
 
@@ -77,6 +78,14 @@ Route::prefix('carrito')->name('carrito.')->group(function () {
     Route::post('/eliminar',   [App\Http\Controllers\CarritoController::class, 'eliminar'])->name('eliminar');
     Route::post('/vaciar',     [App\Http\Controllers\CarritoController::class, 'vaciar'])->name('vaciar');
 });
+
+
+ 
+    Route::post('/pedidos/confirmar',        [PedidosController::class, 'confirmar'])->name('pedidos.confirmar');
+    Route::get ('/pedidos',                  [PedidosController::class, 'index'])    ->name('pedidos.index');
+    Route::get ('/pedidos/{id}',             [PedidosController::class, 'show'])     ->name('pedidos.show');
+    Route::post('/pedidos/{id}/cancelar',    [PedidosController::class, 'cancelar']) ->name('pedidos.cancelar');
+
 
 
 Route::get('/', function () {

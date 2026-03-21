@@ -9,7 +9,7 @@
     @vite('resources/css/app.css', 'resources/js/app.js')
 </head>
 
-<body>
+<body class="min-h-screen flex flex-col">
 
     @php
         $currentRoute = request()->route()->getName();
@@ -93,6 +93,18 @@
                             @endif
                         </a>
 
+                        <a href="{{ route('pedidos.index') }}"
+                            class="relative flex items-center gap-1.5 py-2 px-3 rounded font-medium text-white
+                                   hover:bg-orange-500 md:hover:bg-transparent md:hover:text-orange-400
+                                   transition-colors duration-200 text-sm
+                                   {{ str_starts_with($currentRoute, 'pedidos') ? 'text-orange-400' : '' }}">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2
+                                       M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                            </svg>
+                            Mis pedidos
+                        </a>
+
                         {{-- Usuario activo --}}
                         @if (session('api_token'))
                             <div class="relative">
@@ -157,7 +169,7 @@
         </nav>
     </header>
 
-    <div>
+    <div class="flex-1">
         @yield('contenido')
     </div>
 

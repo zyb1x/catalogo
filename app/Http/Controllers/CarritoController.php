@@ -7,15 +7,18 @@ use Illuminate\Http\Request;
 class CarritoController extends Controller
 {
 
-    //GET caerito
+    // GET /carrito
     public function index()
     {
-        $carrito = session('carrito', []);
+        $carrito       = session('carrito', []);
         $totalUnidades = array_sum(array_column($carrito, 'cantidad'));
+        $totalPrecio   = array_sum(array_map(
+            fn($item) => ($item['precio'] ?? 0) * $item['cantidad'],
+            $carrito
+        ));
 
-        return view('carrito.carrito', compact('carrito', 'totalUnidades'));
+        return view('carrito.carrito', compact('carrito', 'totalUnidades', 'totalPrecio'));
     }
-
 
     // POST /carrito/agregar
     public function agregar(Request $request)
@@ -25,6 +28,7 @@ class CarritoController extends Controller
         $existencia = (int) $request->input('existencia', 100);
         $imagen     = $request->input('imagen');
         $cantidad   = max(1, (int) $request->input('cantidad', 1));
+        $precio     = (float) $request->input('precio', 0);   // ← nuevo
 
         $carrito = session('carrito', []);
 
@@ -39,15 +43,16 @@ class CarritoController extends Controller
                 'nombre_herramienta' => $nombre,
                 'existencia'         => $existencia,
                 'imagen'             => $imagen,
+                'precio'             => $precio,          // ← nuevo
                 'cantidad'           => min($cantidad, $existencia),
             ];
         }
 
         session(['carrito' => $carrito]);
 
-        return redirect()->route('carrito.index')->with('success', 'Herramienta agregada al carrito.');
+        return redirect()->route('carrito.index')
+            ->with('success', 'Herramienta agregada al carrito.');
     }
-
 
     // POST /carrito/actualizar
     public function actualizar(Request $request)
@@ -63,7 +68,8 @@ class CarritoController extends Controller
             session(['carrito' => $carrito]);
         }
 
-        return redirect()->route('carrito.index')->with('success', 'Cantidad actualizada.');
+        return redirect()->route('carrito.index')
+            ->with('success', 'Cantidad actualizada.');
     }
 
     // POST /carrito/eliminar
@@ -75,16 +81,15 @@ class CarritoController extends Controller
         unset($carrito[$id]);
         session(['carrito' => $carrito]);
 
-        return redirect()->route('carrito.index')->with('success', 'Herramienta eliminada del carrito.');
+        return redirect()->route('carrito.index')
+            ->with('success', 'Herramienta eliminada del carrito.');
     }
 
-    
     // POST /carrito/vaciar
     public function vaciar()
     {
         session()->forget('carrito');
-        return redirect()->route('carrito.index')->with('success', 'Carrito vaciado.');
+        return redirect()->route('carrito.index')
+            ->with('success', 'Carrito vaciado.');
     }
-
-
- }
+}

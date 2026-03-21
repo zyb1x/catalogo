@@ -53,6 +53,15 @@
                                     <span class="text-red-400 text-sm font-semibold">No</span>
                                 @endif
                             </div>
+                            {{-- Precio --}}
+                            @if ($herramienta->precio)
+                                <div class="bg-gray-800 rounded-lg px-4 py-2">
+                                    <span class="text-gray-400 text-xs block">Precio c/u</span>
+                                    <span class="text-orange-400 text-xl font-bold">
+                                        ${{ number_format($herramienta->precio, 2) }}
+                                    </span>
+                                </div>
+                            @endif
                         </div>
                     </div>
 
@@ -63,6 +72,7 @@
                         <input type="hidden" name="nombre_herramienta" value="{{ $herramienta->nombre_herramienta }}">
                         <input type="hidden" name="existencia" value="{{ $herramienta->existencia }}">
                         <input type="hidden" name="imagen" value="{{ $herramienta->imagen }}">
+                        <input type="hidden" name="precio" value="{{ $herramienta->precio ?? 0 }}"> {{-- ← nuevo --}}
 
                         <div class="flex items-center gap-3 mb-4">
                             <label class="text-gray-400 text-sm">Cantidad a solicitar:</label>

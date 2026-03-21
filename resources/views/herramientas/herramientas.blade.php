@@ -51,7 +51,7 @@
                         <div class="p-4 flex flex-col flex-1">
 
                             <p class="text-orange-400 text-xs font-bold tracking-widest mb-1">
-                                {{ $herramienta->categoria->nombre_categoria }}
+                                {{ '$' . $herramienta->precio }}
                             </p>
 
                             <h3 class="text-white text-sm font-semibold leading-snug mb-2">
