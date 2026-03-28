@@ -147,8 +147,48 @@
                         </div>
                     </div>
 
+                    {{-- Sección de pago PayPal --}}
+                    {{-- Sección de pago PayPal --}}
+                    @php
+                        $yaPagado = ($pedido['estado_pago'] ?? null) === 'COMPLETADO';
+                    @endphp
+
+                    {{-- Info de transacción si ya pagó --}}
+                    @if ($yaPagado)
+                        <div class="mb-3 bg-green-500/10 border border-green-500/30 rounded-xl p-4 space-y-2 text-sm">
+                            <p class="text-green-400 font-semibold flex items-center gap-2 mb-2">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M5 13l4 4L19 7" />
+                                </svg>
+                                Pago completado
+                            </p>
+                            <div class="flex justify-between text-xs">
+                                <span class="text-gray-400">ID transacción</span>
+                                <span
+                                    class="text-white font-mono text-right break-all">{{ $pedido['transaccion_id'] }}</span>
+                            </div>
+                            <div class="flex justify-between text-xs">
+                                <span class="text-gray-400">Estado</span>
+                                <span class="text-green-400 font-semibold">{{ $pedido['estado_pago'] }}</span>
+                            </div>
+                        </div>
+                    @endif
+
+                    {{-- Botón pagar con PayPal --}}
+                    @if (!$yaPagado && $estatus !== 'Cerrado')
+                        <a href="{{ route('paypal.pagar', $pedido['id_prestamo']) }}"
+                            class="w-full mb-3 bg-[#0070ba] hover:bg-[#005ea6] text-white font-semibold py-2.5 rounded-xl transition-colors flex items-center justify-center gap-2 text-sm">
+                            <svg class="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
+                                <path
+                                    d="M7.076 21.337H2.47a.641.641 0 0 1-.633-.74L4.944.901C5.026.382 5.474 0 5.998 0h7.46c2.57 0 4.578.543 5.69 1.81 1.01 1.15 1.304 2.42 1.012 4.287-.023.143-.047.288-.077.437-.983 5.05-4.349 6.797-8.647 6.797h-2.19c-.524 0-.968.382-1.05.9l-1.12 7.106zm14.146-14.42a3.35 3.35 0 0 0-.607-.541c-.013.076-.026.175-.041.254-.59 3.025-2.566 6.243-8.558 6.243H9.828l-1.258 7.97h3.553c.458 0 .85-.334.922-.787l.038-.196.732-4.63.047-.256a.932.932 0 0 1 .921-.788h.58c3.757 0 6.698-1.525 7.556-5.937.36-1.845.173-3.386-.697-4.332z" />
+                            </svg>
+                            Pagar con PayPal
+                        </a>
+                    @endif
+
                     {{-- Botón cancelar --}}
-                    @if ($estatus !== 'Cerrado')
+                    @if ($estatus !== 'Cerrado' && !$yaPagado)
                         <form action="{{ route('pedidos.cancelar', $pedido['id_prestamo']) }}" method="POST"
                             onsubmit="return confirm('¿Estás seguro de cancelar este pedido? Las herramientas regresarán al inventario.')">
                             @csrf
@@ -163,9 +203,11 @@
                         </form>
                     @else
                         <div class="w-full bg-gray-700 text-gray-400 font-semibold py-2.5 rounded-xl text-sm text-center">
-                            Pedido cerrado
+                            {{ $yaPagado ? 'Pedido pagado' : 'Pedido cerrado' }}
                         </div>
                     @endif
+
+
                 </div>
             </div>
 

@@ -100,3 +100,8 @@ Route::prefix('perfil')->name('perfil.')->group(function () {
     Route::post('/imagen',         [PerfilController::class, 'actualizarImagen'])->name('imagen');
     Route::put('/contrasena',      [PerfilController::class, 'actualizarContrasena'])->name('contrasena');
 });
+
+// Rutas de PayPal
+Route::get('/paypal/pagar/{id_prestamo}', [App\Http\Controllers\PaypalController::class, 'iniciarPago'])->name('paypal.pagar');
+Route::get('/paypal/exitoso',             [App\Http\Controllers\PaypalController::class, 'pagoExitoso']) ->name('paypal.exitoso');
+Route::get('/paypal/cancelado',           [App\Http\Controllers\PaypalController::class, 'pagoCancelado'])->name('paypal.cancelado');
